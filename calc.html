@@ -16,6 +16,7 @@ table { width: 100%; background-color:black; }
 .cBrown { background-color:#8B4513; }
 .cYellow { background-color:#FFFF00; }
 .cRed { background-color:red; }
+.bReset { text-align:center; }
 dl { font-size:1.3em; }
 dl > span { font-weight:bold; font-size:1.5em;}
 #preload { width: 100%;
@@ -416,7 +417,7 @@ var b2c = {
 				<dl class="cBrown">house:<span id="houseScore"></span></dl>
 				<dl class="cYellow">shop:<span id="shopScore"></span></dl>
 				<dl class="cRed">tavern:<span id="tavernSocre"></span></dl>
-				<dl><button onClick="b2c.resetAll()">RESET</button></dl>
+				<dl class="bReset"><button onClick="b2c.resetAll()">RESET</button></dl>
 			</TD>
 		</TR><TR>
 			<TD class="tt" ><IMG class="tile" id="c05" onClick="b2c.change(this);" /></TD>
