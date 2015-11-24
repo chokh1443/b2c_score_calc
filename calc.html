@@ -1,0 +1,427 @@
+<!--
+Scoring Calculator for Between Two Cities Board Game ( http://stonemaiergames.com/between-two-cities/ )
+Kwanghee Cho ( https://github.com/chokh1443 )
+-->
+<HTML>
+<HEAD>
+<STYLE>
+table { width: 100%; background-color:black; }
+.tt { width:20%;background-color:white; }
+.t4 { background-color:white; }
+.tile { width:100%; height:100%;}
+.cYellow { background-color:yellow; }
+.cGray { background-color:gray; }
+.cBlue { background-color:blue; }
+.cGreen { background-color:green; }
+.cBrown { background-color:#8B4513; }
+.cYellow { background-color:#FFFF00; }
+.cRed { background-color:red; }
+dl { font-size:1.3em; }
+dl > span { font-weight:bold; font-size:1.5em;}
+</STYLE>
+<SCRIPT type="text/javascript">
+var sizeRefresh = function(){
+	var e = document.getElementsByClassName("tt");
+	var de = document.documentElement;
+	for(var i=0;i<e.length;i++){
+		if(de.clientHeight/4 > de.clientWidth/5){
+			e[i].style.height=de.clientWidth/5-10;
+			e[i].style.width=de.clientWidth/5-10;
+		}
+		else {
+			e[i].style.height=de.clientHeight/4-10;
+			e[i].style.width=de.clientHeight/4-10;
+		}
+		
+	}
+}
+window.onload = sizeRefresh;
+window.onresize = sizeRefresh;
+
+var b2c = {
+	cells : ["c01","c02","c03","c04","c05","c06","c07","c08","c09","c10","c11","c12","c13","c14","c15","c16"],
+	s : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	tiles : ["./blank.jpg","./shop.jpg","./factory.jpg","./office.jpg","./park.jpg","./house.jpg","./tavern1.jpg","./tavern2.jpg","./tavern3.jpg","tavern4.jpg"],
+	parkCount : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	shopCount : [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+	change : function(obj){
+		var oid = obj.id.split("c")[1]-1;
+		document.getElementById(obj.id).src= this.tiles[ (++this.s[oid])%10];
+		this.updateScore();		
+	},
+	updateScore : function(){
+		var score = this.shopScore()+this.factoryScore()+this.officeScore()+this.parkScore()+this.houseSocre();
+		document.getElementById("totalScore").innerHTML=score;
+		document.getElementById("shopScore").innerHTML=this.shopScore();
+		document.getElementById("factoryScore").innerHTML=this.factoryScore();
+		document.getElementById("officeScore").innerHTML=this.officeScore();
+		document.getElementById("parkScore").innerHTML=this.parkScore();
+		document.getElementById("houseScore").innerHTML=this.houseSocre();
+		document.getElementById("tavernSocre").innerHTML=this.tavernSocre();
+	},
+	shopScore : function(){
+		for(var i=0;i<16;i++){
+			if(this.s[i]%10 == 1){
+				this.shopCount[i]=1;
+			}
+			else{
+				this.shopCount[i]=0;
+			}
+		}
+		
+		var checkRow = function(my,num){
+			var count = 0;
+			var countMax = 0;
+			for(var i=0;i<4;i++){
+				if(my.shopCount[num*4 + i] != 0){
+					count++;
+					if(count > countMax){
+						countMax = count;
+					}
+				}
+				else {
+					count = 0;
+				}
+			}
+			return countMax;
+		};
+		var checkCol = function(my,num){
+			var count = 0;
+			var countMax = 0;
+			for(var i=0;i<4;i++){
+				if(my.shopCount[num + i*4] != 0){
+					count++;
+					if(count > countMax){
+						countMax = count;
+					}
+				}
+				else {
+					count = 0;
+				}
+			}
+			return countMax;
+		};
+		var removeRow = function(my,num,size){
+			var count = 0;
+			for(var i=0;i<4;i++){
+				if(my.shopCount[num*4 + i] != 0){
+					count++;
+					if(size == count){
+						for(var j=0; j<size; j++){
+							my.shopCount[num*4 + (i-j)] = 0;
+						}
+						return 0;
+					}
+				}
+				else {
+					count = 0;
+				}
+			}
+		};
+		var removeCol = function(my,num,size){
+			var count = 0;
+			for(var i=0;i<4;i++){
+				if(my.shopCount[num + i*4] != 0){
+					count++;
+					if(size == count){
+						for(var j=0; j<size; j++){
+							my.shopCount[num + (i-j)*4] = 0;
+						}
+					}
+				}
+				else {
+					count = 0;
+				}
+			}
+		};
+		var leftShop = function(my){
+			for(var i=0;i<16;i++){
+				if(my.shopCount[i] != 0){
+					return 1;
+				}
+			}
+			return 0;
+		};
+		var shopScore = [2,5,10,16];
+		var score = 0;
+		while(leftShop(this) == 1){
+			var rows = [0,0,0,0];
+			var cols = [0,0,0,0];
+			for(var i=0;i<4;i++){
+				rows[i] = checkRow(this,i);
+				cols[i] = checkCol(this,i);
+			}
+			for(var i=4;i>0;i--){
+				var nR=0;
+				var nC=0;
+				for(var j=0;j<4;j++){
+					if(rows[j] == i){
+						nR++;
+					}
+					if(cols[j] == i){
+						nC++;
+					}
+				}
+				if(nR > nC){//removeRow
+					for(var k=0;k<4;k++){
+						if(checkRow(this,k) == i){
+							score+=shopScore[i-1];
+							removeRow(this,k,i);
+							k=4;
+							i=0;
+						}
+					}
+				}
+				else{
+					for(var k=0;k<4;k++){
+						if(checkCol(this,k) == i){
+							score+=shopScore[i-1];
+							removeCol(this,k,i);
+							k=4;
+							i=0;
+						}
+					}
+				}
+				
+			}
+		}
+		return score;
+	},
+	factoryScore : function(){
+		var count = 0;
+		var score = 0;
+		for(var i=0;i<16;i++){
+			if(this.s[i]%10 == 2){
+				count++;
+			}
+		}
+		mm = document.getElementById("factoryMajor").value;
+		if(mm == 1){//major
+			score += count*4;
+		}
+		else if(mm == 2){
+			score += count*3;
+		}
+		else {
+			score += count*2;
+		}
+		return score;
+	},
+	officeScore : function(){
+		var blueAdjRed = function(my,num) {
+			var count=0;
+			if(num > 3){//row234
+				if(my.s[num-4]%10 >= 6){
+					count +=1;
+				}
+			}
+			if(num%4 != 0){//col234
+				if(my.s[num-1]%10 >= 6){
+					count +=1;
+				}
+			}
+			if(num%4 != 3){//col123
+				if(my.s[num+1]%10 >= 6){
+					count +=1;
+				}
+			}
+			if(num < 12) {//row123
+				if(my.s[num+4]%10 >= 6){
+					count +=1;
+				}
+			}
+			if(count != 0){
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+		var blueScore = [0,1,3,6,10,15,21,22,24,27,31,36,42,43,45,48,52];
+		var count = 0;
+		var score = 0;
+		for(var i=0;i<16;i++){
+			if(this.s[i]%10 == 3){
+				count++;
+				score += blueAdjRed(this,i);
+			}
+		}
+		score += blueScore[count];
+		return score;
+	},
+	parkScore : function(){
+		var adjPark = function(my,num) {
+			var count=0;
+			if(num%4 != 3){//col123
+				if(my.s[num+1]%10 == 4 && my.parkCount[num+1] == 0){
+					my.parkCount[num+1]++;
+					count++;
+					count+=adjPark(my,num+1);
+				}
+			}
+			if(num < 12) {//row123
+				if(my.s[num+4]%10 == 4 && my.parkCount[num+4] == 0){
+					my.parkCount[num+4]++;
+					count++;
+					count+=adjPark(my,num+4);
+				}
+			}
+			return count;
+		};
+		var parkScore = [0,2,8,12,13,14,15,16,17,18,19,20,21,22,23,24,25];
+		this.parkCount = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+		var score = 0;
+		for(var i=0;i<16;i++){
+			if(this.s[i]%10 == 4 && this.parkCount[i] == 0){
+				this.parkCount[i]++;
+				score += parkScore[adjPark(this,i)+1];
+			}
+		}
+		return score;
+	},
+	houseSocre : function(){
+		var factoryCheck = function(my,num){
+			var factory = 0;
+			if(num > 3){//row234
+				if(my.s[num-4]%9 == 2){
+					factory +=1;
+				}
+			}
+			if(num%4 != 0){//col234
+				if(my.s[num-1]%9 == 2){
+					factory +=1;
+				}
+			}
+			if(num%4 != 3){//col123
+				if(my.s[num+1]%9 == 2){
+					factory +=1;
+				}
+			}
+			if(num < 12) {//row123
+				if(my.s[num+4]%9 == 2){
+					factory +=1;
+				}
+			}
+			if(factory > 0){
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		};
+		var variantCheck = function(my){
+			var n = 0;
+			var types = [0,0,0,0,0,0];
+			for(var i=0;i<16;i++){
+				if(my.s[i]%10 != 0){
+					if(my.s[i]%10 >= 6){
+						types[5]++;
+					}
+					else{
+						types[my.s[i]%10-1]++;
+					}
+				}
+			}
+			for(var i=0;i<6;i++){
+				if(i!=4){
+					if(types[i] > 0){
+						n++;
+					}
+				}
+			}
+			return n;
+		};
+		var score = 0;
+		var numOfTypes = variantCheck(this);
+		for(var i=0;i<16;i++){
+			if(this.s[i]%10 == 5){
+				if(factoryCheck(this,i) == 1){
+					score += 1;
+				}
+				else {
+					score += numOfTypes;
+				}
+			}
+		}
+		return score;
+	},
+	tavernSocre : function(){
+		var tarvens = [0,0,0,0];
+		for(var i=0;i<16;i++){
+			if(this.s[i]%10 >= 6){
+				tarvens[this.s[i]%10 - 6]++;
+			}
+		}
+		var leftTarvens = function(){
+			var retVal = 0;
+			for(var i=0;i<4;i++){
+				retVal += tarvens[i];
+			}
+			return retVal;
+		};
+		var score=0;
+		var tarvenScore = [1,4,9,17];
+		while(leftTarvens() > 0){
+			var count = 0;
+			for(var i=0;i<4;i++){
+				if(tarvens[i] > 0){
+					count++;
+					tarvens[i]--;
+				}
+			}
+			score += tarvenScore[count-1];
+		}
+		return score;
+	},
+	resetAll : function(){
+	}
+};
+</SCRIPT>
+</HEAD>
+<BODY>
+<DIV>
+	<TABLE>
+		<TR>
+			<TD class="tt" ><IMG class="tile" id="c01" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c02" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c03" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c04" onClick="b2c.change(this);" /></TD>
+			<TD class="t4" rowspan="4">
+				<dl class="cTotal">total:<span id="totalScore"></span></dl>
+				<dl class="cGray">factory(<SELECT id="factoryMajor" onChange="b2c.updateScore()"></dl>
+				<OPTION value="1">Major</OPTION>
+				<OPTION value="2">Minor</OPTION>
+				<OPTION value="0">None</OPTION>
+				</SELECT>):<span id="factoryScore"></span></dl>
+				<dl class="cBlue">office:<span id="officeScore"></span></dl>
+				<dl class="cGreen">park:<span id="parkScore"></span></dl>
+				<dl class="cBrown">house:<span id="houseScore"></span></dl>
+				<dl class="cYellow">shop:<span id="shopScore"></span></dl>
+				<dl class="cRed">tavern:<span id="tavernSocre"></span></dl>
+			</TD>
+		</TR><TR>
+			<TD class="tt" ><IMG class="tile" id="c05" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c06" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c07" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c08" onClick="b2c.change(this);" /></TD>
+		</TR><TR>
+			<TD class="tt" ><IMG class="tile" id="c09" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c10" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c11" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c12" onClick="b2c.change(this);" /></TD>
+		</TR><TR>
+			<TD class="tt" ><IMG class="tile" id="c13" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c14" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c15" onClick="b2c.change(this);" /></TD>
+			<TD class="tt" ><IMG class="tile" id="c16" onClick="b2c.change(this);" /></TD>
+		</TR>
+	</TABLE>
+</DIV>
+
+<!--
+<DIV id="ref">
+	<IMG SRC ="./reference.jpg" width="600px" />
+</DIV>
+-->
+</BODY>
+</HTML>
