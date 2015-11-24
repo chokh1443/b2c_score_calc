@@ -18,6 +18,17 @@ table { width: 100%; background-color:black; }
 .cRed { background-color:red; }
 dl { font-size:1.3em; }
 dl > span { font-weight:bold; font-size:1.5em;}
+#preload { width: 100%;
+    height: 100%;
+    z-index: 100;
+    background-color: rgba(128, 128, 128, 0.6);
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+	text-align:center;
+	vertical-align:middle;
+}
 </STYLE>
 <SCRIPT type="text/javascript">
 var sizeRefresh = function(){
@@ -34,6 +45,7 @@ var sizeRefresh = function(){
 		}
 		
 	}
+	document.getElementById("preload").style.display="none";
 }
 window.onload = sizeRefresh;
 window.onresize = sizeRefresh;
@@ -434,6 +446,7 @@ var b2c = {
 	<IMG SRC ="./tavern2.jpg" width="1px" />
 	<IMG SRC ="./tavern3.jpg" width="1px" />
 	<IMG SRC ="./tavern4.jpg" width="1px" />
+	<p>LOADING...</p>
 </DIV>
 
 </BODY>
