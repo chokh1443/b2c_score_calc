@@ -50,7 +50,7 @@ var b2c = {
 		this.updateScore();		
 	},
 	updateScore : function(){
-		var score = this.shopScore()+this.factoryScore()+this.officeScore()+this.parkScore()+this.houseSocre();
+		var score = this.shopScore()+this.factoryScore()+this.officeScore()+this.parkScore()+this.houseSocre()+this.tavernSocre();
 		document.getElementById("totalScore").innerHTML=score;
 		document.getElementById("shopScore").innerHTML=this.shopScore();
 		document.getElementById("factoryScore").innerHTML=this.factoryScore();
@@ -374,6 +374,11 @@ var b2c = {
 		return score;
 	},
 	resetAll : function(){
+		for(var i=0;i<16;i++){
+			document.getElementById(this.cells[i]).src= this.tiles[0];
+			this.s[i] = 0;
+			this.updateScore();		
+		}	
 	}
 };
 </SCRIPT>
@@ -398,6 +403,7 @@ var b2c = {
 				<dl class="cBrown">house:<span id="houseScore"></span></dl>
 				<dl class="cYellow">shop:<span id="shopScore"></span></dl>
 				<dl class="cRed">tavern:<span id="tavernSocre"></span></dl>
+				<dl><button onClick="b2c.resetAll()">RESET</button></dl>
 			</TD>
 		</TR><TR>
 			<TD class="tt" ><IMG class="tile" id="c05" onClick="b2c.change(this);" /></TD>
@@ -417,11 +423,18 @@ var b2c = {
 		</TR>
 	</TABLE>
 </DIV>
-
-<!--
-<DIV id="ref">
-	<IMG SRC ="./reference.jpg" width="600px" />
+<DIV id="preload">
+	<IMG SRC ="./blank.jpg" width="1px" />
+	<IMG SRC ="./factory.jpg" width="1px" />
+	<IMG SRC ="./house.jpg" width="1px" />
+	<IMG SRC ="./office.jpg" width="1px" />
+	<IMG SRC ="./park.jpg" width="1px" />
+	<IMG SRC ="./shop.jpg" width="1px" />
+	<IMG SRC ="./tavern1.jpg" width="1px" />
+	<IMG SRC ="./tavern2.jpg" width="1px" />
+	<IMG SRC ="./tavern3.jpg" width="1px" />
+	<IMG SRC ="./tavern4.jpg" width="1px" />
 </DIV>
--->
+
 </BODY>
 </HTML>
